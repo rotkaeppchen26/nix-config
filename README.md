@@ -2,3 +2,6 @@
 
 This config was made to be used on my old Lenovo Legion Pro 5 (16IAH7H)
 If, for whatever reason, you'd like to try it yourself, be aware of the nvidia drivers.
+
+## renix.sh
+Copied and renamed from https://github.com/cakeforcat/nixos-config/blob/main/holy-mother-of-scripts.fish
