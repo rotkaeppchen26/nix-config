@@ -1,6 +1,4 @@
-# Edit this configuration file to define what should be installed on
-# your system.  Help is available in the configuration.nix(5) man page
-# and in the NixOS manual (accessible by running ‘nixos-help’).
+# help: 'man configuration.nix' or 'nixos-help' 
 
 { config, pkgs, ... }:
 
@@ -20,10 +18,6 @@
 
   networking.hostName = "nixos"; # Define your hostname.
   # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
-
-  # Configure network proxy if necessary
-  # networking.proxy.default = "http://user:password@proxy:port/";
-  # networking.proxy.noProxy = "127.0.0.1,localhost,internal.domain";
 
   # Enable networking
   networking.networkmanager.enable = true;
@@ -54,6 +48,11 @@
   services.displayManager.sddm.enable = true;
   services.desktopManager.plasma6.enable = true;
 
+  xdg.portal = { # Plex login fix
+    enable = true;
+    xdgOpenUsePortal = true;
+  };
+
   # Configure keymap in X11
   services.xserver.xkb = {
     layout = "at";
@@ -79,6 +78,29 @@
     #media-session.enable = true;
   };
 
+  hardware.opentabletdriver.enable = true;
+  hardware.bluetooth = {
+    enable = true;
+    powerOnBoot = true;
+    settings = {
+      General = {
+        # Shows battery charge of connected devices on supported
+        # Bluetooth adapters. Defaults to 'false'.
+        Experimental = true;
+        # When enabled other devices can connect faster to us, however
+        # the tradeoff is increased power consumption. Defaults to
+        # 'false'.
+        FastConnectable = true;
+      };
+      Policy = {
+        # Enable all controllers when they are found. This includes
+        # adapters present on start as well as adapters that are plugged
+        # in later on. Defaults to 'true'.
+        AutoEnable = true;
+      };
+    };
+  };
+
   # Enable touchpad support (enabled default in most desktopManager).
   # services.xserver.libinput.enable = true;
 
@@ -90,10 +112,15 @@
     packages = with pkgs; [
       kdePackages.kate
       kdePackages.yakuake
+      kdePackages.kdenlive
       protonplus
       edopro
       osu-lazer
-    #  thunderbird
+      thunderbird
+      obsidian
+      obs-studio
+      shotcut
+      davinci-resolve
     ];
     shell = pkgs.fish;
   };
@@ -115,28 +142,26 @@
   # List packages installed in system profile. To search, run:
   # $ nix search wget
   environment.systemPackages = with pkgs; [
-    vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
-    wget
-    git
-    curl
+    vim vscode # editors
+    wget curl git gh # typical cli stuff
     lshw
-    starship
-    fish
-    discord
-    vesktop
-    plex-desktop
-    haruna
+    fish starship # shell / prompt
+    discord vesktop qpwgraph
+    plex-desktop haruna # media
+
+    # emulators
     ppsspp
-    dolphin-emu
     pcsx2
+    dolphin-emu
+
+    # gaming utilities
     umu-launcher
-    bottles
+    #bottles # doesn't really do anything better than umu-launcher for me...
     lutris
     heroic
-    vscode
     unigine-heaven
     gamemode
-    wgnord
+    
     # pokeloco build deps
     pkgsCross.arm-embedded.stdenv.cc pkg-config libpng
   ];
@@ -160,10 +185,6 @@
   # Or disable the firewall altogether.
   # networking.firewall.enable = false;
 
-  # This value determines the NixOS release from which the default
-  # settings for stateful data, like file locations and database versions
-  # on your system were taken. It‘s perfectly fine and recommended to leave
-  # this value at the release version of the first install of this system.
   # Before changing this value read the documentation for this option
   # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
   system.stateVersion = "25.05"; # Did you read the comment?
