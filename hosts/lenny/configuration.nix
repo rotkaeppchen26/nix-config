@@ -1,11 +1,10 @@
-# help: 'man configuration.nix' or 'nixos-help' 
+# help: 'man configuration.nix' or 'nixos-help'
 
-{ config, pkgs, ... }:
-
+{ config, system, pkgs, pkgs-unstable, inputs, ... }:
 {
   imports =
     [ # Include the results of the hardware scan.
-      <nixos-hardware/lenovo/legion/16iah7h>
+      inputs.nixos-hardware.nixosModules.lenovo-legion-16iah7h
       ./hardware-configuration.nix
     ];
 
@@ -40,13 +39,18 @@
     LC_TIME = "de_AT.UTF-8";
   };
 
+  i18n.extraLocales = [
+    "ja_JP.UTF-8/UTF-8"
+  ];
+
   # Enable the X11 windowing system.
   # You can disable this if you're only using the Wayland session.
   services.xserver.enable = true;
 
   # Enable the KDE Plasma Desktop Environment.
   services.displayManager.sddm.enable = true;
-  services.desktopManager.plasma6.enable = true;
+  services.displayManager.sddm.wayland.enable = true;
+  #services.desktopManager.plasma6.enable = true;
 
   xdg.portal = { # Plex login fix
     enable = true;
@@ -57,6 +61,7 @@
   services.xserver.xkb = {
     layout = "at";
     variant = "nodeadkeys";
+    options = "caps:escape";
   };
 
   # Enable CUPS to print documents.
@@ -110,60 +115,58 @@
     description = "derrix";
     extraGroups = [ "networkmanager" "wheel" ];
     packages = with pkgs; [
-      kdePackages.kate
-      kdePackages.yakuake
-      kdePackages.kdenlive
-      protonplus
-      edopro
-      osu-lazer
-      thunderbird
+
       obsidian
-      obs-studio
-      shotcut
-      davinci-resolve
     ];
-    shell = pkgs.fish;
+    #shell = pkgs.fish;
+  };
+
+#  programs.yazi.enable = true;
+  programs.appimage = {
+    enable = true;
+    binfmt = true;
   };
 
   # Enable automatic login for the user.
   services.displayManager.autoLogin.enable = true;
   services.displayManager.autoLogin.user = "derrix";
 
-  # Install firefox...
-  programs.firefox.enable = true;
-  programs.fish.enable = true;
-  programs.starship.enable = true;
-  programs.steam.enable = true;
-
   # Allow unfree packages
   nixpkgs.config.allowUnfree = true;
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
 
+  # Allow execution of random binaries
+  programs.nix-ld.enable = true;
+  programs.nix-ld.libraries = with pkgs; [
+    # Any missing dyn libs for unpackaged programs here, NOT in environment.systemPackagres
+  ];
+
   # List packages installed in system profile. To search, run:
   # $ nix search wget
   environment.systemPackages = with pkgs; [
-    vim vscode # editors
-    wget curl git gh # typical cli stuff
-    lshw
-    fish starship # shell / prompt
-    discord vesktop qpwgraph
-    plex-desktop haruna # media
+    lshw # hardware listener
 
-    # emulators
-    ppsspp
-    pcsx2
-    dolphin-emu
+    figlet lolcat cowsay
+    discord qpwgraph discord-canary
+    easyeffects crosspipe
 
-    # gaming utilities
-    umu-launcher
-    #bottles # doesn't really do anything better than umu-launcher for me...
-    lutris
-    heroic
-    unigine-heaven
-    gamemode
-    
-    # pokeloco build deps
-    pkgsCross.arm-embedded.stdenv.cc pkg-config libpng
+    moonlight-qt
+  ];
+
+  # fonts = {
+  #   packages = with pkgs; [
+  #     font-awesome
+  #   ];
+  #   fontconfig = {
+  #     enable = true;
+  #     defaultFonts = {
+  #       monospace = [ "FiraCode Nerd Font" "Font Awesome 6 Free" ];
+  #     };
+  #   };
+  # };
+
+  nixpkgs.config.permittedInsecurePackages = [
+    "openssl-1.1.1w"
   ];
 
   # Some programs need SUID wrappers, can be configured further or are
@@ -190,4 +193,3 @@
   system.stateVersion = "25.05"; # Did you read the comment?
 
 }
-
