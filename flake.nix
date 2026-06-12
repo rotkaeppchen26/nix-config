@@ -50,6 +50,14 @@
           ./modules/gaming.nix
         ];
       };
+
+      holly = nixpkgs.lib.nixosSystem {
+        specialArgs = { inherit system inputs pkgs-unstable; };
+
+        modules = [
+          ./hosts/holly/configuration.nix
+        ]
+      }
     };
 
   };
