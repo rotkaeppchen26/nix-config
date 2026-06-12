@@ -2,7 +2,7 @@
 # your system.  Help is available in the configuration.nix(5) man page
 # and in the NixOS manual (accessible by running ‘nixos-help’).
 
-{ config, pkgs, ... }:
+{ config, pkgs, pkgs-deprecated, ... }:
 
 {
   imports =
@@ -242,7 +242,7 @@
     umu-launcher heroic lutris mangohud steam-devices-udev-rules
     librewolf
     keepass
-    pcsx2 dolphin-emu desmume ppsspp rpcs3 yabause azahar ryubing duckstation melonDS mgba
+    pcsx2 dolphin-emu desmume ppsspp rpcs3 yabause azahar ryubing pkgs-deprecated.duckstation melonDS mgba
     # github:shadps4-emu/shadPS4
     deluge
     just # command runner
