@@ -253,6 +253,8 @@
 
     #unstable.crosspipe
 
+    figlet lolcat 
+
     protontricks
     android-tools scrcpy
   ];
