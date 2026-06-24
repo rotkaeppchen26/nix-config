@@ -74,11 +74,11 @@
 
   # Enable the X11 windowing system.
   # You can disable this if you're only using the Wayland session.
-  services.xserver.enable = true;
+  #services.xserver.enable = true;
 
   # Enable the KDE Plasma Desktop Environment.
-  services.displayManager.sddm.enable = true;
-  services.desktopManager.plasma6.enable = true;
+  #services.displayManager.sddm.enable = true;
+  #services.desktopManager.plasma6.enable = true;
 
   # Configure keymap in X11
   services.xserver.xkb = {
@@ -159,13 +159,13 @@
     description = "derrick";
     extraGroups = [ "networkmanager" "wheel" ];
     packages = with pkgs; [
-      kdePackages.kate
-      kdePackages.yakuake
-      kdePackages.filelight
+      #kdePackages.kate
+      #kdePackages.yakuake
+      #kdePackages.filelight
       protonplus
       #edopro
       #osu-lazer
-      thunderbird
+      #thunderbird
       obsidian
       edopro
       forge-mtg
@@ -211,7 +211,7 @@
   programs.partition-manager.enable = true;
 
   # install Firefox and Steam
-  programs.firefox.enable = true;
+  #programs.firefox.enable = true;
   programs.steam = {
     enable = true;
     remotePlay.openFirewall = true; # Optional
@@ -240,8 +240,8 @@
     qpwgraph ffmpeg
     haruna
     umu-launcher heroic lutris mangohud steam-devices-udev-rules
-    librewolf
-    keepass
+    #librewolf
+    #keepass
     pcsx2 dolphin-emu desmume ppsspp rpcs3 yabause azahar ryubing pkgs-deprecated.duckstation melonDS mgba
     # github:shadps4-emu/shadPS4
     deluge

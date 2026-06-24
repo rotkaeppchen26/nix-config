@@ -66,6 +66,8 @@
 
         modules = [
           ./hosts/holly/configuration.nix
+          ./modules/desktop/kde.nix
+          ./modules/core.nix
           ./modules/development.nix
         ];
       };
