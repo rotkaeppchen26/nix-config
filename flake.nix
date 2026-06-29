@@ -69,6 +69,7 @@
           ./modules/desktop/kde.nix
           ./modules/core.nix
           ./modules/development.nix
+          ./modules/media.nix
         ];
       };
     };

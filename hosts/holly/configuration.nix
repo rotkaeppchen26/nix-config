@@ -16,9 +16,9 @@
   # Bootloader.
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
-  
-  boot.blacklistedKernelModules = [ "hid_gc" ];  
-  # gcc adapter overclocking mod 
+
+  boot.blacklistedKernelModules = [ "hid_gc" ];
+  # gcc adapter overclocking mod
   #boot.extraModulePackages = [
   #  config.boot.kernelPackages.gcadapter-oc-kmod
   #];
@@ -117,7 +117,7 @@
         default = [ "gtk" ];
       };
     };
-  };  
+  };
 
   # Enable touchpad support (enabled default in most desktopManager).
   # services.xserver.libinput.enable = true;
@@ -238,7 +238,7 @@
     fish starship
     discord vesktop discord-canary
     qpwgraph ffmpeg
-    haruna
+
     umu-launcher heroic lutris mangohud steam-devices-udev-rules
     #librewolf
     #keepass
@@ -253,7 +253,7 @@
 
     #unstable.crosspipe
 
-    figlet lolcat 
+    figlet lolcat
 
     protontricks
     android-tools scrcpy
