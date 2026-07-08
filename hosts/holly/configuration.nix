@@ -177,6 +177,7 @@
       picard
       pavucontrol
       liferea
+      rssguard
       rhythmbox
     ];
     shell = pkgs.fish;
