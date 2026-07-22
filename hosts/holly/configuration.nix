@@ -192,11 +192,11 @@
       stdenv.cc.cc
       libGL
       libGLU
-      xorg.libX11
-      xorg.libXrandr
-      xorg.libXcursor
-      xorg.libXi
-      xorg.libXinerama
+      libx11
+      libxrandr
+      libxcursor
+      libxi
+      libxinerama
       alsa-lib pulseaudio
       libudev-zero
       ffmpeg_4
@@ -244,7 +244,7 @@
     umu-launcher heroic lutris mangohud steam-devices-udev-rules
     #librewolf
     #keepass
-    pcsx2 dolphin-emu desmume ppsspp rpcs3 yabause azahar ryubing pkgs-deprecated.duckstation melonDS mgba
+    pcsx2 dolphin-emu desmume ppsspp rpcs3 yabause azahar ryubing pkgs-deprecated.duckstation melonds mgba
     # github:shadps4-emu/shadPS4
     deluge
     just # command runner
