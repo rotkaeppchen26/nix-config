@@ -261,6 +261,11 @@
     android-tools scrcpy
   ];
 
+  services.deluge = {
+    enable = true;
+
+  };
+
   services.zerotierone = {
     enable = true;
   };
