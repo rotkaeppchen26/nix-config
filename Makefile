@@ -16,3 +16,11 @@ $(HOSTS):
 	@$(call rebuild_and_commit,$@)
 
 .PHONY: $(HOSTS)
+
+.PHONY: update
+update:
+	nix flake update nixpkgs nixpkgs-unstable nixpkgs-deprecated home-manager
+
+.PHONY: clean
+clean:
+	nix-collect-garbage -d
