@@ -1,19 +1,20 @@
-# Define the function/template for the rebuild and commit logic
+# Define the function with two arguments: $(1) for the host, $(2) for the message
 define rebuild_and_commit
 	sudo nixos-rebuild switch --flake ./#$(1) && \
 	git add . && \
-	git commit -m "nixos-rebuild: updated $(1)"
+	git commit -m "$(if $(2),$(2),nixos-rebuild: updated $(1))"
 endef
 
 # # The % acts as a wildcard matching any target name you type
 # %:
 # 	@$(call rebuild_and_commit,$@)
 
+# Only allow matches that are explicitly listed in the HOSTS variable
 HOSTS := lenny holly
 
-# This only matches targets that are explicitly listed in the HOSTS variable
+# Allow passing a message via 'msg' variable (e.g., make holly msg="fix graphics driver")
 $(HOSTS):
-	@$(call rebuild_and_commit,$@)
+	@$(call rebuild_and_commit,$@,$(msg))
 
 .PHONY: $(HOSTS)
 
