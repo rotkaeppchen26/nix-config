@@ -139,6 +139,8 @@
   programs.nix-ld.enable = true;
   programs.nix-ld.libraries = with pkgs; [
     # Any missing dyn libs for unpackaged programs here, NOT in environment.systemPackagres
+    libusb1
+    libusbsio
   ];
 
   # List packages installed in system profile. To search, run:
