@@ -58,6 +58,7 @@
           ./modules/development.nix
           ./modules/media.nix
           ./modules/gaming.nix
+          ./modules/nixld.nix
         ];
       };
 
