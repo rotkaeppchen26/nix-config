@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ pkgs, username, ... }:
 {
   environment.systemPackages = with pkgs; [
     # editors
@@ -12,5 +12,12 @@
 
     # lsp
     nixd rust-analyzer
+
   ];
+
+  # Enable Docker daemon
+  virtualisation.docker.enable = true;
+
+  # Add your user to the docker group
+  users.users.${username}.extraGroups = [ "docker" ];
 }
