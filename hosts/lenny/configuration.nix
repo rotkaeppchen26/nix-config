@@ -141,6 +141,14 @@
     # Any missing dyn libs for unpackaged programs here, NOT in environment.systemPackagres
     libusb1
     libusbsio
+    pkg-config
+    glew glfw
+    libx11
+    libxrandr
+    libxcursor
+    libxi
+    libxinerama
+    alsa-lib pulseaudio
   ];
 
   # List packages installed in system profile. To search, run:
