@@ -1,20 +1,23 @@
-# Define the function with two arguments: $(1) for the host, $(2) for the message
+# Define the function:
+# $(1) = host
+# $(2) = commit message (if provided)
+# $(3) = local flag (if "true", skips commit)
 define rebuild_and_commit
-	sudo nixos-rebuild switch --flake ./#$(1) && \
-	git add . && \
-	git commit -m "$(if $(2),$(2),nixos-rebuild: updated $(1))"
+	sudo nixos-rebuild switch --flake ./#$(1)
+	@if [ "$(3)" != "true" ]; then \
+		git add . && \
+		git commit -m "$(if $(2),$(2),nixos-rebuild: updated $(1))"; \
+	else \
+		echo "Skipping git commit (--local enabled)."; \
+	fi
 endef
 
-# # The % acts as a wildcard matching any target name you type
-# %:
-# 	@$(call rebuild_and_commit,$@)
-
-# Only allow matches that are explicitly listed in the HOSTS variable
 HOSTS := lenny holly
 
-# Allow passing a message via 'msg' variable (e.g., make holly msg="fix graphics driver")
+# Allow passing a message via 'msg' and skipping via 'local=true'
+# Example: make lenny msg="update flake" local=true
 $(HOSTS):
-	@$(call rebuild_and_commit,$@,$(msg))
+	@$(call rebuild_and_commit,$@,$(msg),$(local))
 
 .PHONY: $(HOSTS)
 
