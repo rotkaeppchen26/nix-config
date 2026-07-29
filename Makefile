@@ -8,7 +8,7 @@ define rebuild_and_commit
 		git add . && \
 		git commit -m "$(if $(2),$(2),nixos-rebuild: updated $(1))"; \
 	else \
-		echo "Skipping git commit (--local enabled)."; \
+		echo "Skipping git commit (local=true)."; \
 	fi
 endef
 

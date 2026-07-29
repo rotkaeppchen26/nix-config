@@ -71,6 +71,7 @@
           ./modules/core.nix
           ./modules/development.nix
           ./modules/media.nix
+          ./modules/nixld.nix
         ];
       };
     };
