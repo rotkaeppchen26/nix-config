@@ -170,7 +170,7 @@
       obsidian
       edopro
       forge-mtg
-      gimp
+      gimp krita
       abcde
       sound-juicer
       kid3
