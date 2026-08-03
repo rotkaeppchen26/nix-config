@@ -54,6 +54,7 @@
 
         modules = [
           ./hosts/lenny/configuration.nix
+          ./hosts/lenny/lenovo.nix
           ./modules/desktop/hyprland.nix
           ./modules/core.nix
           ./modules/shell.nix

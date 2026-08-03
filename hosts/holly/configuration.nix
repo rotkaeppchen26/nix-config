@@ -126,7 +126,7 @@
   # Enable flatpak
   services.flatpak.enable = true;
 
-  # Udev rules
+  #  rules
   services.udev.packages = with pkgs; [
     dolphin-emu
     game-devices-udev-rules
