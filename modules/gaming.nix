@@ -22,6 +22,7 @@
     pcsx2
     dolphin-emu
     mgba
+    mesen
 
     umu-launcher
     faugus-launcher
