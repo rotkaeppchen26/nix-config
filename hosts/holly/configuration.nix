@@ -216,6 +216,7 @@
     umu-launcher heroic lutris mangohud steam-devices-udev-rules
     #librewolf
     #keepass
+    mesen
     pcsx2 dolphin-emu desmume ppsspp rpcs3 yabause azahar ryubing pkgs-deprecated.duckstation melonds mgba
     # github:shadps4-emu/shadPS4
     deluge
