@@ -17,7 +17,6 @@
   outputs = { self, nixpkgs, nixpkgs-unstable, nixpkgs-deprecated, nixos-hardware, ... }@inputs:
   let
     system = "x86_64-linux";
-    username = "derrix";
 
     pkgs = import nixpkgs {
       inherit system;
@@ -48,7 +47,10 @@
 
     nixosConfigurations = {
       lenny = nixpkgs.lib.nixosSystem {
-        specialArgs = { inherit system username inputs pkgs-unstable; };
+        specialArgs = {
+          inherit system inputs pkgs-unstable;
+          username = "derrix";
+        };
 
         modules = [
           ./hosts/lenny/configuration.nix
@@ -63,12 +65,16 @@
       };
 
       holly = nixpkgs.lib.nixosSystem {
-        specialArgs = { inherit system inputs pkgs-unstable pkgs-deprecated; };
+        specialArgs = {
+          inherit system inputs pkgs-unstable pkgs-deprecated;
+          username = "derrick";
+        };
 
         modules = [
           ./hosts/holly/configuration.nix
           ./modules/desktop/kde.nix
           ./modules/core.nix
+          ./modules/shell.nix
           ./modules/development.nix
           ./modules/media.nix
           ./modules/nixld.nix

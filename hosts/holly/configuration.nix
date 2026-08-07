@@ -179,7 +179,6 @@
       liferea
       rhythmbox
     ];
-    shell = pkgs.fish;
   };
 
   programs.partition-manager.enable = true;
@@ -193,12 +192,6 @@
   };
   programs.gamemode.enable = true;
 
-  # install shell, prompt & utilities
-  programs.fish.enable = true;
-  programs.starship.enable = true;
-  programs.zoxide.enable = true;
-  programs.zoxide.enableFishIntegration = true;
-
   # Allow unfree packages
   nixpkgs.config.allowUnfree = true;
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
@@ -206,21 +199,15 @@
   # List packages installed in system profile. To search, run:
   # $ nix search wget
   environment.systemPackages = with pkgs; [
-    vim vscode msedit
-    wget curl git gh
     lshw ncdu unrar
-    fish starship
     discord vesktop discord-canary
     qpwgraph ffmpeg
 
     umu-launcher heroic lutris mangohud steam-devices-udev-rules
-    #librewolf
-    #keepass
     mesen
     pcsx2 dolphin-emu desmume ppsspp rpcs3 yabause azahar ryubing pkgs-deprecated.duckstation melonds mgba
     # github:shadps4-emu/shadPS4
     deluge
-    just # command runner
     home-manager
     zerotierone parsec-bin moonlight-qt
     element-desktop
@@ -233,11 +220,6 @@
     protontricks
     android-tools scrcpy
   ];
-
-  services.deluge = {
-    enable = true;
-
-  };
 
   services.zerotierone = {
     enable = true;
