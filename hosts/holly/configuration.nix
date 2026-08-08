@@ -2,7 +2,7 @@
 # your system.  Help is available in the configuration.nix(5) man page
 # and in the NixOS manual (accessible by running ‘nixos-help’).
 
-{ config, pkgs, pkgs-deprecated, ... }:
+{ config, pkgs, ... }:
 
 {
   imports =
@@ -164,9 +164,6 @@
       #kdePackages.yakuake
       #kdePackages.filelight
       protonplus
-      #edopro
-      #osu-lazer
-      #thunderbird
       obsidian
       edopro
       forge-mtg
@@ -183,8 +180,6 @@
 
   programs.partition-manager.enable = true;
 
-  # install Firefox and Steam
-  #programs.firefox.enable = true;
   programs.steam = {
     enable = true;
     remotePlay.openFirewall = true; # Optional
@@ -192,12 +187,6 @@
   };
   programs.gamemode.enable = true;
 
-  # Allow unfree packages
-  nixpkgs.config.allowUnfree = true;
-  nix.settings.experimental-features = [ "nix-command" "flakes" ];
-
-  # List packages installed in system profile. To search, run:
-  # $ nix search wget
   environment.systemPackages = with pkgs; [
     lshw ncdu unrar
     discord vesktop discord-canary
@@ -205,15 +194,11 @@
 
     umu-launcher heroic lutris mangohud steam-devices-udev-rules
     mesen
-    pcsx2 dolphin-emu desmume ppsspp rpcs3 yabause azahar ryubing pkgs-deprecated.duckstation melonds mgba
-    # github:shadps4-emu/shadPS4
+    pcsx2 dolphin-emu desmume ppsspp rpcs3 yabause azahar ryubing deprecated.duckstation melonds mgba
     deluge
-    home-manager
     zerotierone parsec-bin moonlight-qt
     element-desktop
     tutanota-desktop
-
-    #unstable.crosspipe
 
     figlet lolcat
 

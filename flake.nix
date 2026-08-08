@@ -1,12 +1,16 @@
 {
-  description = "A very basic flake";
+  description = "A cleaner, idiomatic Nix flake";
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs?ref=nixos-26.05";
     nixpkgs-unstable.url = "github:nixos/nixpkgs?ref=nixos-unstable";
+    nixpkgs-deprecated.url = "github:nixos/nixpkgs?ref=nixos-25.11";
     nixos-hardware.url = "github:nixos/nixos-hardware";
 
-    nixpkgs-deprecated.url = "github:nixos/nixpkgs?ref=nixos-25.11";
+    home-manager = {
+      url = "github:nix-community/home-manager";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
 
     zen-browser = {
       url = "github:youwen5/zen-browser-flake";
@@ -19,44 +23,45 @@
     };
   };
 
-  outputs = { self, nixpkgs, nixpkgs-unstable, nixpkgs-deprecated, nixos-hardware, ... }@inputs:
+  outputs = { self, nixpkgs, nixpkgs-unstable, nixpkgs-deprecated, ... }@inputs:
   let
-    system = "x86_64-linux";
+    supportedSystems = [ "x86_64-linux" "aarch64-linux" ];
+    forAllSystems = nixpkgs.lib.genAttrs supportedSystems;
 
-    pkgs = import nixpkgs {
-      inherit system;
-
-      config = {
-        allowUnfree = true;
+    # Define overlays to inject unstable and deprecated packages safely
+    overlay-unstable = final: prev: {
+      unstable = import nixpkgs-unstable {
+        system = prev.stdenv.hostPlatform.system;
+        config.allowUnfree = true;
       };
     };
 
-    pkgs-unstable = import nixpkgs-unstable {
-      inherit system;
-
-      config = {
-        allowUnfree = true;
+    overlay-deprecated = final: prev: {
+      deprecated = import nixpkgs-deprecated {
+        system = prev.stdenv.hostPlatform.system;
+        config.allowUnfree = true;
       };
     };
 
-    pkgs-deprecated = import nixpkgs-deprecated {
-      inherit system;
-
-      config = {
-        allowUnfree = true;
+    mkSystem = { system ? "x86_64-linux", username, modules }:
+      nixpkgs.lib.nixosSystem {
+        inherit system;
+        specialArgs = { inherit inputs username; };
+        modules = modules ++ [
+          {
+            nix.settings.experimental-features = [ "nix-command" "flakes" ];
+            nixpkgs.hostPlatform = system;
+            nixpkgs.config.allowUnfree = true;
+            nixpkgs.overlays = [ overlay-unstable overlay-deprecated ];
+          }
+        ];
       };
-    };
 
   in
   {
-
     nixosConfigurations = {
-      lenny = nixpkgs.lib.nixosSystem {
-        specialArgs = {
-          inherit system inputs pkgs-unstable;
-          username = "derrix";
-        };
-
+      lenny = mkSystem {
+        username = "derrix";
         modules = [
           ./hosts/lenny/configuration.nix
           ./modules/desktop/hyprland.nix
@@ -70,12 +75,8 @@
         ];
       };
 
-      holly = nixpkgs.lib.nixosSystem {
-        specialArgs = {
-          inherit system inputs pkgs-unstable pkgs-deprecated;
-          username = "derrick";
-        };
-
+      holly = mkSystem {
+        username = "derrick";
         modules = [
           ./hosts/holly/configuration.nix
           ./modules/desktop/kde.nix
@@ -87,6 +88,5 @@
         ];
       };
     };
-
   };
 }
