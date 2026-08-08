@@ -12,6 +12,11 @@
       url = "github:youwen5/zen-browser-flake";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    caelestia = {
+      url = "github:caelestia-dots/shell";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs = { self, nixpkgs, nixpkgs-unstable, nixpkgs-deprecated, nixos-hardware, ... }@inputs:
@@ -54,8 +59,8 @@
 
         modules = [
           ./hosts/lenny/configuration.nix
-          ./hosts/lenny/lenovo.nix
           ./modules/desktop/hyprland.nix
+          ./modules/desktop/caelestia.nix
           ./modules/core.nix
           ./modules/shell.nix
           ./modules/development.nix
