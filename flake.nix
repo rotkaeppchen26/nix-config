@@ -8,7 +8,7 @@
     nixos-hardware.url = "github:nixos/nixos-hardware";
 
     home-manager = {
-      url = "github:nix-community/home-manager";
+      url = "github:nix-community/home-manager/release-26.05";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
@@ -43,7 +43,7 @@
       };
     };
 
-    mkSystem = { system ? "x86_64-linux", username, modules }:
+    mkSystem = { system ? "x86_64-linux", username, enableHomeManager ? false, modules }:
       nixpkgs.lib.nixosSystem {
         inherit system;
         specialArgs = { inherit inputs username; };
@@ -54,6 +54,15 @@
             nixpkgs.config.allowUnfree = true;
             nixpkgs.overlays = [ overlay-unstable overlay-deprecated ];
           }
+        ] ++ nixpkgs.lib.optionals enableHomeManager [
+          inputs.home-manager.nixosModules.home-manager
+          {
+            home-manager.useGlobalPkgs = true;
+            home-manager.useUserPackages = true;
+            home-manager.extraSpecialArgs = { inherit inputs username; };
+            home-manager.users.${username} = import ./home.nix;
+            home-manager.backupFileExtension = ".bak";
+          }
         ];
       };
 
@@ -62,6 +71,7 @@
     nixosConfigurations = {
       lenny = mkSystem {
         username = "derrix";
+        enableHomeManager = true; # Enabled for this host
         modules = [
           ./hosts/lenny/configuration.nix
           ./modules/desktop/hyprland.nix
@@ -77,6 +87,7 @@
 
       holly = mkSystem {
         username = "derrick";
+        enableHomeManager = false; # Disabled for this host
         modules = [
           ./hosts/holly/configuration.nix
           ./modules/desktop/kde.nix

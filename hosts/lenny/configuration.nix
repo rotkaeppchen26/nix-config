@@ -1,6 +1,6 @@
 # help: 'man configuration.nix' or 'nixos-help'
 
-{ config, system, pkgs, pkgs-unstable, inputs, ... }:
+{ config, pkgs, inputs, ... }:
 {
   imports =
     [ # Include the results of the hardware scan.
@@ -8,12 +8,17 @@
       ./hardware-configuration.nix
     ];
 
+  # enable lenovo_ideapad specific conservation mode
+  systemd.tmpfiles.rules = [
+      "w /sys/bus/platform/drivers/ideapad_acpi/VPC2004:00/conservation_mode - - - - 1"
+  ];
+
   # Bootloader.
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
 
   # Use 6.6 kernel due to compatibility with 570 nvidia drivers
-  boot.kernelPackages = pkgs.linuxPackages_6_6;
+  #boot.kernelPackages = pkgs.linuxPackages_6_6;
 
   networking.hostName = "nixos"; # Define your hostname.
   # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
@@ -45,7 +50,7 @@
 
   # Enable the X11 windowing system.
   # You can disable this if you're only using the Wayland session.
-  services.xserver.enable = true;
+  #services.xserver.enable = true;
 
   # Enable the KDE Plasma Desktop Environment.
   services.displayManager.sddm.enable = true;
@@ -58,11 +63,11 @@
   };
 
   # Configure keymap in X11
-  services.xserver.xkb = {
-    layout = "at";
-    variant = "nodeadkeys";
-    options = "caps:escape";
-  };
+  # services.xserver.xkb = {
+  #   layout = "at";
+  #   variant = "nodeadkeys";
+  #   options = "caps:escape";
+  # };
 
   # Enable CUPS to print documents.
   services.printing.enable = true;
@@ -82,6 +87,8 @@
     # no need to redefine it in your config for now)
     #media-session.enable = true;
   };
+
+  services.hardware.openrgb.enable = true;
 
   hardware.opentabletdriver.enable = true;
   hardware.bluetooth = {
@@ -115,7 +122,7 @@
     description = "derrix";
     extraGroups = [ "networkmanager" "wheel" ];
     packages = with pkgs; [
-
+      stow
       obsidian
     ];
     #shell = pkgs.fish;

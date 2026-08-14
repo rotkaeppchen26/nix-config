@@ -1,4 +1,4 @@
-{ pkgs, pkgs-unstable, ... }:
+{ pkgs, ... }:
 {
 
   # enable hyprland
@@ -39,7 +39,7 @@
     wofi 	# session manager?
     #waybar 	# task bar (optional due to noctalia)
     #noctalia-shell
-    pkgs-unstable.noctalia
+    unstable.noctalia
     brightnessctl playerctl 	# required for keybinds
     hyprshot 	# screenshot utility
   ];
