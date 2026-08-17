@@ -47,6 +47,26 @@
         "type": "github"
       }
     },
+    "dms-plugin-registry": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1786675314,
+        "narHash": "sha256-2MT7gUsiLHLp1g93+8LWvolCX5nplQVvCOtRpO75R0E=",
+        "owner": "AvengeMedia",
+        "repo": "dms-plugin-registry",
+        "rev": "1c652c5f5d0b0ff174674e27cc34fe551254b84c",
+        "type": "github"
+      },
+      "original": {
+        "owner": "AvengeMedia",
+        "repo": "dms-plugin-registry",
+        "type": "github"
+      }
+    },
     "home-manager": {
       "inputs": {
         "nixpkgs": [
@@ -188,6 +208,7 @@
     "root": {
       "inputs": {
         "caelestia": "caelestia",
+        "dms-plugin-registry": "dms-plugin-registry",
         "home-manager": "home-manager",
         "nixos-hardware": "nixos-hardware",
         "nixpkgs": "nixpkgs_2",

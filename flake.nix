@@ -21,12 +21,17 @@
       url = "github:caelestia-dots/shell";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    dms-plugin-registry = {
+      url = "github:AvengeMedia/dms-plugin-registry";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs = { self, nixpkgs, nixpkgs-unstable, nixpkgs-deprecated, ... }@inputs:
   let
-    supportedSystems = [ "x86_64-linux" "aarch64-linux" ];
-    forAllSystems = nixpkgs.lib.genAttrs supportedSystems;
+    # supportedSystems = [ "x86_64-linux" "aarch64-linux" ];
+    # forAllSystems = nixpkgs.lib.genAttrs supportedSystems;
 
     # Define overlays to inject unstable and deprecated packages safely
     overlay-unstable = final: prev: {
@@ -74,8 +79,7 @@
         enableHomeManager = true; # Enabled for this host
         modules = [
           ./hosts/lenny/configuration.nix
-          ./modules/desktop/hyprland.nix
-          ./modules/desktop/caelestia.nix
+          ./modules/desktop/hyprland  # hyprland + shell
           ./modules/core.nix
           ./modules/shell.nix
           ./modules/development.nix

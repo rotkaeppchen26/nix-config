@@ -1,16 +1,21 @@
 # help: 'man configuration.nix' or 'nixos-help'
 
-{ config, pkgs, inputs, ... }:
 {
-  imports =
-    [ # Include the results of the hardware scan.
-      inputs.nixos-hardware.nixosModules.lenovo-legion-16iah7h
-      ./hardware-configuration.nix
-    ];
+  #config,
+  pkgs,
+  inputs,
+  ...
+}:
+{
+  imports = [
+    # Include the results of the hardware scan.
+    inputs.nixos-hardware.nixosModules.lenovo-legion-16iah7h
+    ./hardware-configuration.nix
+  ];
 
   # enable lenovo_ideapad specific conservation mode
   systemd.tmpfiles.rules = [
-      "w /sys/bus/platform/drivers/ideapad_acpi/VPC2004:00/conservation_mode - - - - 1"
+    "w /sys/bus/platform/drivers/ideapad_acpi/VPC2004:00/conservation_mode - - - - 1"
   ];
 
   # Bootloader.
@@ -57,7 +62,8 @@
   services.displayManager.sddm.wayland.enable = true;
   #services.desktopManager.plasma6.enable = true;
 
-  xdg.portal = { # Plex login fix
+  xdg.portal = {
+    # Plex login fix
     enable = true;
     xdgOpenUsePortal = true;
   };
@@ -80,12 +86,7 @@
     alsa.enable = true;
     alsa.support32Bit = true;
     pulse.enable = true;
-    # If you want to use JACK applications, uncomment this
     jack.enable = true;
-
-    # use the example session manager (no others are packaged yet so this is enabled by default,
-    # no need to redefine it in your config for now)
-    #media-session.enable = true;
   };
 
   services.hardware.openrgb.enable = true;
@@ -120,7 +121,10 @@
   users.users.derrix = {
     isNormalUser = true;
     description = "derrix";
-    extraGroups = [ "networkmanager" "wheel" ];
+    extraGroups = [
+      "networkmanager"
+      "wheel"
+    ];
     packages = with pkgs; [
       stow
       obsidian
@@ -128,7 +132,7 @@
     #shell = pkgs.fish;
   };
 
-#  programs.yazi.enable = true;
+  #  programs.yazi.enable = true;
   programs.appimage = {
     enable = true;
     binfmt = true;
@@ -140,7 +144,10 @@
 
   # Allow unfree packages
   nixpkgs.config.allowUnfree = true;
-  nix.settings.experimental-features = [ "nix-command" "flakes" ];
+  nix.settings.experimental-features = [
+    "nix-command"
+    "flakes"
+  ];
 
   # List packages installed in system profile. To search, run:
   # $ nix search wget
@@ -148,9 +155,16 @@
     lshw # hardware listener
     p7zip
 
-    figlet lolcat cowsay
-    discord qpwgraph discord-canary
-    easyeffects crosspipe
+    deprecated.duckstation
+
+    figlet
+    lolcat
+    cowsay
+    discord
+    qpwgraph
+    discord-canary
+    easyeffects
+    crosspipe
 
     moonlight-qt
   ];

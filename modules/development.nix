@@ -1,17 +1,26 @@
-{ pkgs, username, ... }:
+{ pkgs, ... }:
 {
   environment.systemPackages = with pkgs; [
     # editors
-    vim vscode msedit zed-editor
+    vim
+    vscode
+    msedit
+    unstable.zed-editor-fhs
 
     # web stuff
-    wget curl git gh
+    wget
+    curl
+    git
+    gh
 
     # build+
-    jq gnumake
+    jq
+    gnumake
 
     # lsp
-    nixd rust-analyzer
+    nixd
+    nil
+    rust-analyzer
 
   ];
 
