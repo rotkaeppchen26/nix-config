@@ -1,4 +1,4 @@
-{ config, pkgs, username, osConfig, ... }:
+{ config, pkgs, username, hostname, ... }:
 {
   home.username = "${username}";
   home.homeDirectory = "/home/${username}";
@@ -7,8 +7,7 @@
   programs.home-manager.enable = true;
 
   imports = [
-    ./home/lenny  # TODO: make it follow hostname; change hostnames from 'nixos' to lenny/holly
+    ./home/${hostname}
   ];
 
-  #home.packages = with pkgs; [ ripgrep fd bat eza ];
 }

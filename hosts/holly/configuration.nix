@@ -29,14 +29,6 @@
   networking.hostName = "nixos"; # Define your hostname.
   # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
 
-  networking.firewall = {
-    enable = true;
-    allowedUDPPorts = [ 7777 47984 47989 47990 48010];
-    allowedTCPPorts = [ 7777 47998 47999 48000 48002 48010 ];
-  };
-
-  services.terraria.openFirewall = true;
-
   # Configure network proxy if necessary
   # networking.proxy.default = "http://user:password@proxy:port/";
   # networking.proxy.noProxy = "127.0.0.1,localhost,internal.domain";
@@ -180,11 +172,7 @@
 
   programs.partition-manager.enable = true;
 
-  programs.steam = {
-    enable = true;
-    remotePlay.openFirewall = true; # Optional
-    dedicatedServer.openFirewall = true; # Optional
-  };
+  programs.steam.enable = true;
   programs.gamemode.enable = true;
 
   environment.systemPackages = with pkgs; [

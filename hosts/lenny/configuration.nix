@@ -4,6 +4,8 @@
   #config,
   pkgs,
   inputs,
+  username,
+  hostname,
   ...
 }:
 {
@@ -25,7 +27,7 @@
   # Use 6.6 kernel due to compatibility with 570 nvidia drivers
   #boot.kernelPackages = pkgs.linuxPackages_6_6;
 
-  networking.hostName = "nixos"; # Define your hostname.
+  networking.hostName = "${hostname}"; # Define your hostname.
   # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
 
   # Enable networking

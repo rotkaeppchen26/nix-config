@@ -48,10 +48,10 @@
       };
     };
 
-    mkSystem = { system ? "x86_64-linux", username, enableHomeManager ? false, modules }:
+    mkSystem = { system ? "x86_64-linux", username, hostname ? "nixos", enableHomeManager ? false, modules }:
       nixpkgs.lib.nixosSystem {
         inherit system;
-        specialArgs = { inherit inputs username; };
+        specialArgs = { inherit inputs username hostname; };
         modules = modules ++ [
           {
             nix.settings.experimental-features = [ "nix-command" "flakes" ];
@@ -64,7 +64,7 @@
           {
             home-manager.useGlobalPkgs = true;
             home-manager.useUserPackages = true;
-            home-manager.extraSpecialArgs = { inherit inputs username; };
+            home-manager.extraSpecialArgs = { inherit inputs username hostname; };
             home-manager.users.${username} = import ./home.nix;
             home-manager.backupFileExtension = ".bak";
           }
@@ -76,16 +76,16 @@
     nixosConfigurations = {
       lenny = mkSystem {
         username = "derrix";
+        hostname = "lenny";
         enableHomeManager = true; # Enabled for this host
         modules = [
           ./hosts/lenny/configuration.nix
-          ./modules/desktop/hyprland  # hyprland + shell
-          ./modules/core.nix
+          ./modules/essentials
+          ./modules/desktop/hyprland  # hyprland + desktop shell
           ./modules/shell.nix
           ./modules/development.nix
           ./modules/media.nix
           ./modules/gaming.nix
-          ./modules/nixld.nix
         ];
       };
 
@@ -94,12 +94,11 @@
         enableHomeManager = false; # Disabled for this host
         modules = [
           ./hosts/holly/configuration.nix
+          ./modules/essentials
           ./modules/desktop/kde.nix
-          ./modules/core.nix
           ./modules/shell.nix
           ./modules/development.nix
           ./modules/media.nix
-          ./modules/nixld.nix
         ];
       };
     };
