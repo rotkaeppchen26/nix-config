@@ -1,29 +1,27 @@
 { pkgs, ... }:
 {
-  # # temporary lutris fix
-  # nixpkgs.overlays = [
-  #   (final: prev: {
-  #     openldap = prev.openldap.overrideAttrs (old: {
-  #       doCheck = false;
-  #     });
-  #   })
-  # ];
 
-  programs.steam.enable = true;
+  programs.steam = {
+    enable = true;
+    gamescopeSession.enable = true;
+
+    extraCompatPackages = [ pkgs.proton-ge-bin ];
+  };
+
   programs.gamemode.enable = true;
 
   environment.systemPackages = with pkgs; [
-    gamescope
+    gamescope # used as package for hyprscope
     protonplus
-    edopro
-    osu-lazer
 
+    # Emulators
     ppsspp
     pcsx2
     dolphin-emu
     mgba
     mesen
 
+    # Installers & Launchers
     umu-launcher
     faugus-launcher
     lutris

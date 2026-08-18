@@ -32,10 +32,6 @@
   services.power-profiles-daemon.enable = true;
   services.upower.enable = true;
 
-  # hyprland specific
-  programs.steam.gamescopeSession.enable = true;
-  programs.yazi.enable = true;
-
   # set console keyboard layout
   console.keyMap = "de-latin1-nodeadkeys";
 
@@ -60,5 +56,7 @@
     hyprshot 	# screenshot utility
     hyprlauncher  # application launcher
   ];
+
+  programs.yazi.enable = true;
 
 }

@@ -4,4 +4,10 @@
     plex-desktop
     haruna
   ];
+
+  xdg.portal = {
+    # Plex login fix
+    enable = true;
+    xdgOpenUsePortal = true;
+  };
 }

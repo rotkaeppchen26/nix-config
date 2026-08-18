@@ -8,5 +8,9 @@
     keepassxc
 
     thunderbird
+
+    obsidian
+
+    discord-canary
   ];
 }

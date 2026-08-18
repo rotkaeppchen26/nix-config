@@ -4,5 +4,6 @@
     ./core.nix
     ./firewall.nix
     ./nixld.nix
+    ./locale.nix
   ];
 }

@@ -1,5 +1,3 @@
-# help: 'man configuration.nix' or 'nixos-help'
-
 {
   #config,
   pkgs,
@@ -15,85 +13,19 @@
     ./hardware-configuration.nix
   ];
 
+
+  ###
+  # HARDWARE CONFIG
+  ###
   # enable lenovo_ideapad specific conservation mode
   systemd.tmpfiles.rules = [
     "w /sys/bus/platform/drivers/ideapad_acpi/VPC2004:00/conservation_mode - - - - 1"
   ];
 
-  # Bootloader.
-  boot.loader.systemd-boot.enable = true;
-  boot.loader.efi.canTouchEfiVariables = true;
-
-  # Use 6.6 kernel due to compatibility with 570 nvidia drivers
-  #boot.kernelPackages = pkgs.linuxPackages_6_6;
-
-  networking.hostName = "${hostname}"; # Define your hostname.
-  # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
-
-  # Enable networking
-  networking.networkmanager.enable = true;
-
-  # Set your time zone.
-  time.timeZone = "Europe/Vienna";
-
-  # Select internationalisation properties.
-  i18n.defaultLocale = "en_US.UTF-8";
-
-  i18n.extraLocaleSettings = {
-    LC_ADDRESS = "de_AT.UTF-8";
-    LC_IDENTIFICATION = "de_AT.UTF-8";
-    LC_MEASUREMENT = "de_AT.UTF-8";
-    LC_MONETARY = "de_AT.UTF-8";
-    LC_NAME = "de_AT.UTF-8";
-    LC_NUMERIC = "de_AT.UTF-8";
-    LC_PAPER = "de_AT.UTF-8";
-    LC_TELEPHONE = "de_AT.UTF-8";
-    LC_TIME = "de_AT.UTF-8";
-  };
-
-  i18n.extraLocales = [
-    "ja_JP.UTF-8/UTF-8"
-  ];
-
-  # Enable the X11 windowing system.
-  # You can disable this if you're only using the Wayland session.
-  #services.xserver.enable = true;
-
-  # Enable the KDE Plasma Desktop Environment.
-  services.displayManager.sddm.enable = true;
-  services.displayManager.sddm.wayland.enable = true;
-  #services.desktopManager.plasma6.enable = true;
-
-  xdg.portal = {
-    # Plex login fix
-    enable = true;
-    xdgOpenUsePortal = true;
-  };
-
-  # Configure keymap in X11
-  # services.xserver.xkb = {
-  #   layout = "at";
-  #   variant = "nodeadkeys";
-  #   options = "caps:escape";
-  # };
-
-  # Enable CUPS to print documents.
-  services.printing.enable = true;
-
-  # Enable sound with pipewire.
-  services.pulseaudio.enable = false;
-  security.rtkit.enable = true;
-  services.pipewire = {
-    enable = true;
-    alsa.enable = true;
-    alsa.support32Bit = true;
-    pulse.enable = true;
-    jack.enable = true;
-  };
-
   services.hardware.openrgb.enable = true;
 
   hardware.opentabletdriver.enable = true;
+
   hardware.bluetooth = {
     enable = true;
     powerOnBoot = true;
@@ -116,9 +48,43 @@
     };
   };
 
-  # Enable touchpad support (enabled default in most desktopManager).
-  # services.xserver.libinput.enable = true;
 
+  ###
+  # SERVICES
+  ###
+
+  # Bootloader.
+  boot.loader.systemd-boot.enable = true;
+  boot.loader.efi.canTouchEfiVariables = true;
+
+  networking = {
+    networkmanager.enable = true;
+    hostName = "${hostname}";
+    # wireless.enable = true;  # Enables wireless support via wpa_supplicant.
+  };
+
+  # Enable basic display Management.
+  services.displayManager.sddm.enable = true;
+  services.displayManager.sddm.wayland.enable = true;
+
+  # Enable CUPS to print documents.
+  services.printing.enable = true;
+
+  # Enable sound with pipewire.
+  services.pulseaudio.enable = false;
+  security.rtkit.enable = true;
+  services.pipewire = {
+    enable = true;
+    alsa.enable = true;
+    alsa.support32Bit = true;
+    pulse.enable = true;
+    jack.enable = true;
+  };
+
+
+  ###
+  # USER
+  ###
   # Define a user account. Don't forget to set a password with ‘passwd’.
   users.users.derrix = {
     isNormalUser = true;
@@ -127,53 +93,15 @@
       "networkmanager"
       "wheel"
     ];
-    packages = with pkgs; [
-      stow
-      obsidian
-    ];
-    #shell = pkgs.fish;
-  };
-
-  #  programs.yazi.enable = true;
-  programs.appimage = {
-    enable = true;
-    binfmt = true;
   };
 
   # Enable automatic login for the user.
   services.displayManager.autoLogin.enable = true;
-  services.displayManager.autoLogin.user = "derrix";
+  services.displayManager.autoLogin.user = "${username}";
 
-  # Allow unfree packages
-  nixpkgs.config.allowUnfree = true;
-  nix.settings.experimental-features = [
-    "nix-command"
-    "flakes"
-  ];
-
-  # List packages installed in system profile. To search, run:
-  # $ nix search wget
-  environment.systemPackages = with pkgs; [
-    lshw # hardware listener
-    p7zip
-
-    deprecated.duckstation
-
-    figlet
-    lolcat
-    cowsay
-    discord
-    qpwgraph
-    discord-canary
-    easyeffects
-    crosspipe
-
-    moonlight-qt
-  ];
-
-  nixpkgs.config.permittedInsecurePackages = [
-    "openssl-1.1.1w"
-  ];
+  # nixpkgs.config.permittedInsecurePackages = [
+  #   "openssl-1.1.1w"
+  # ];
 
   # Some programs need SUID wrappers, can be configured further or are
   # started in user sessions.
@@ -183,16 +111,8 @@
   #   enableSSHSupport = true;
   # };
 
-  # List services that you want to enable:
-
   # Enable the OpenSSH daemon.
   # services.openssh.enable = true;
-
-  # Open ports in the firewall.
-  # networking.firewall.allowedTCPPorts = [ ... ];
-  # networking.firewall.allowedUDPPorts = [ ... ];
-  # Or disable the firewall altogether.
-  # networking.firewall.enable = false;
 
   # Before changing this value read the documentation for this option
   # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).

@@ -53,6 +53,7 @@
         inherit system;
         specialArgs = { inherit inputs username hostname; };
         modules = modules ++ [
+          ./hosts/${hostname}
           {
             nix.settings.experimental-features = [ "nix-command" "flakes" ];
             nixpkgs.hostPlatform = system;
@@ -79,7 +80,6 @@
         hostname = "lenny";
         enableHomeManager = true; # Enabled for this host
         modules = [
-          ./hosts/lenny/configuration.nix
           ./modules/essentials
           ./modules/desktop/hyprland  # hyprland + desktop shell
           ./modules/shell.nix
@@ -91,9 +91,9 @@
 
       holly = mkSystem {
         username = "derrick";
+        hostname = "holly";
         enableHomeManager = false; # Disabled for this host
         modules = [
-          ./hosts/holly/configuration.nix
           ./modules/essentials
           ./modules/desktop/kde.nix
           ./modules/shell.nix
