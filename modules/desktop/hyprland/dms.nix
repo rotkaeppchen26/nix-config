@@ -1,9 +1,11 @@
-{inputs, ...}:
+{inputs, pkgs, ...}:
 {
   imports = [ inputs.dms-plugin-registry.nixosModules.default ];
 
   programs.dms-shell = {
     enable = true;
+
+    package = pkgs.unstable.dms-shell;
 
     systemd = {
       enable = true;             # Systemd service for auto-start

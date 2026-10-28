@@ -23,6 +23,9 @@
   ];
 
   services.hardware.openrgb.enable = true;
+  services.udev.packages = [ pkgs.openrgb ];
+  boot.kernelModules = [ "i2c-dev" "i2c-i801" "i2c-smbus" ];
+  hardware.i2c.enable = true;
 
   hardware.opentabletdriver.enable = true;
 

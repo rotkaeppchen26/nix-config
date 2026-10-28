@@ -81,7 +81,7 @@
         enableHomeManager = true; # Enabled for this host
         modules = [
           ./modules/essentials
-          ./modules/desktop/hyprland  # hyprland + desktop shell
+          ./modules/desktop/kde.nix
           ./modules/shell.nix
           ./modules/development.nix
           ./modules/media.nix

@@ -20,7 +20,7 @@
     libxi
     libxinerama
     alsa-lib pulseaudio
-    libudev-zero
+    #libudev-zero
     ffmpeg_4
     gst_all_1.gstreamer
     gst_all_1.gst-plugins-base
@@ -30,5 +30,13 @@
     gst_all_1.gst-libav
     libva
     sdl2-compat
+
+    # legion-kb-rgb
+    systemd
+    libxcb
+    glib
+    dbus
+    gtk3
+    gdk-pixbuf
   ];
 }
