@@ -1,106 +1,19 @@
 {
-  description = "A cleaner, idiomatic Nix flake";
+  description = "Fully dendritic NixOS + Home Manager configuration";
 
   inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs?ref=nixos-26.05";
-    nixpkgs-unstable.url = "github:nixos/nixpkgs?ref=nixos-unstable";
-    nixpkgs-deprecated.url = "github:nixos/nixpkgs?ref=nixos-25.11";
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-26.05";
+    nixpkgs-unstable.url = "github:nixos/nixpkgs/nixos-unstable";
     nixos-hardware.url = "github:nixos/nixos-hardware";
-
-    home-manager = {
-      url = "github:nix-community/home-manager/release-26.05";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
     zen-browser = {
-      url = "github:youwen5/zen-browser-flake";
+      url = "github:0x000022070/zen-browser-flake";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    flake-parts.url = "github:hercules-ci/flake-parts";
+    import-tree.url = "github:vic/import-tree";
 
-    caelestia = {
-      url = "github:caelestia-dots/shell";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
-    dms-plugin-registry = {
-      url = "github:AvengeMedia/dms-plugin-registry";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
   };
 
-  outputs = { self, nixpkgs, nixpkgs-unstable, nixpkgs-deprecated, ... }@inputs:
-  let
-    # supportedSystems = [ "x86_64-linux" "aarch64-linux" ];
-    # forAllSystems = nixpkgs.lib.genAttrs supportedSystems;
-
-    # Define overlays to inject unstable and deprecated packages safely
-    overlay-unstable = final: prev: {
-      unstable = import nixpkgs-unstable {
-        system = prev.stdenv.hostPlatform.system;
-        config.allowUnfree = true;
-      };
-    };
-
-    overlay-deprecated = final: prev: {
-      deprecated = import nixpkgs-deprecated {
-        system = prev.stdenv.hostPlatform.system;
-        config.allowUnfree = true;
-      };
-    };
-
-    mkSystem = { system ? "x86_64-linux", username, hostname ? "nixos", enableHomeManager ? false, modules }:
-      nixpkgs.lib.nixosSystem {
-        inherit system;
-        specialArgs = { inherit inputs username hostname; };
-        modules = modules ++ [
-          ./hosts/${hostname}
-          {
-            nix.settings.experimental-features = [ "nix-command" "flakes" ];
-            nixpkgs.hostPlatform = system;
-            nixpkgs.config.allowUnfree = true;
-            nixpkgs.overlays = [ overlay-unstable overlay-deprecated ];
-          }
-        ] ++ nixpkgs.lib.optionals enableHomeManager [
-          inputs.home-manager.nixosModules.home-manager
-          {
-            home-manager.useGlobalPkgs = true;
-            home-manager.useUserPackages = true;
-            home-manager.extraSpecialArgs = { inherit inputs username hostname; };
-            home-manager.users.${username} = import ./home.nix;
-            home-manager.backupFileExtension = ".bak";
-          }
-        ];
-      };
-
-  in
-  {
-    nixosConfigurations = {
-      lenny = mkSystem {
-        username = "derrix";
-        hostname = "lenny";
-        enableHomeManager = true; # Enabled for this host
-        modules = [
-          ./modules/essentials
-          ./modules/desktop/kde.nix
-          ./modules/shell.nix
-          ./modules/development.nix
-          ./modules/media.nix
-          ./modules/gaming.nix
-        ];
-      };
-
-      holly = mkSystem {
-        username = "derrick";
-        hostname = "holly";
-        enableHomeManager = false; # Disabled for this host
-        modules = [
-          ./modules/essentials
-          ./modules/desktop/kde.nix
-          ./modules/shell.nix
-          ./modules/development.nix
-          ./modules/media.nix
-        ];
-      };
-    };
-  };
+  outputs = inputs:
+    inputs.flake-parts.lib.mkFlake { inherit inputs; } (inputs.import-tree ./modules);
 }
