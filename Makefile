@@ -23,7 +23,7 @@ $(HOSTS):
 
 .PHONY: update
 update:
-	nix flake update nixpkgs nixpkgs-unstable nixpkgs-deprecated home-manager
+	nix flake update
 
 .PHONY: clean
 clean:
