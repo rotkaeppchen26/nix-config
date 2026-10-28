@@ -1,9 +1,9 @@
-{ ... }:
+{ inputs, ... }:
 {
   flake.nixosModules.packages = {pkgs, ...}: {
 
     environment.systemPackages = with pkgs; [
-      zen-browser
+      inputs.zen-browser.packages.${pkgs.stdenv.hostPlatform.system}.default
       keepassxc
       thunderbird
       obsidian

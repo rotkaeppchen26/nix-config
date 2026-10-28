@@ -18,11 +18,11 @@
         system.stateVersion = "25.05";
 
         features.desktop = "kde";
-        features.services.nix-ld.enable = true;
-        features.hardware = {
-          bluetooth.enable = true;
-          laptop.enable = true;
-        };
+        #features.services.nix-ld.enable = true;
+        # features.hardware = {
+        #   bluetooth.enable = true;
+        #   laptop.enable = true;
+        # };
 
         home.derrix = {
           enable = true;

@@ -19,7 +19,7 @@
       options = "--max-freed $((64 * 1024**3))";
     };
 
-    registry.nixpkgs.flake = inputs.nixpkgs;
+    #registry.nixpkgs.flake = inputs.nixpkgs;
 
   };
 }

@@ -2,7 +2,6 @@
   #config,
   pkgs,
   inputs,
-  username,
   ...
 }:
 {
@@ -31,6 +30,6 @@
 
   # Enable automatic login for the user.
   services.displayManager.autoLogin.enable = true;
-  services.displayManager.autoLogin.user = "${username}";
+  services.displayManager.autoLogin.user = "derrix";
 
 }

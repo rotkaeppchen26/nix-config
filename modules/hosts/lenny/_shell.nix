@@ -1,8 +1,8 @@
-{pkgs, username, ...}:
+{pkgs, ...}:
 {
 
   # set fish as default
-  users.users.${username}.shell = pkgs.fish;
+  users.users.derrix.shell = pkgs.fish;
 
   # enable fish, starship prompt and other cli utils
   programs.fish.enable = true;

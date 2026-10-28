@@ -25,8 +25,8 @@ in {
       extraGroups =
         ["networkManager"]
         ++ groups
-        ++ lib.optional cfg.admin "wheel"
-        ++ lib.optional cfg.features.services.docker.enable "docker";
+        ++ lib.optional cfg.admin "wheel";
+        #++ lib.optional cfg.features.services.docker.enable "docker";
       packages = packages pkgs;
     };
   };
