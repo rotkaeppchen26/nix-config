@@ -1,17 +1,15 @@
 {
   self,
   inputs,
+  pkgs,
   ...
 }: {
 
   flake.nixosConfigurations.lenny = inputs.nixpkgs.lib.nixosSystem {
     modules = with self.nixosModules; [
-      system features home
+      system features home hostConfiguration
       ./_hardware-configuration.nix
-      ./_configuration.nix
-      ./_packages.nix
       ./_shell.nix
-      ./_development.nix
       inputs.nixos-hardware.nixosModules.lenovo-legion-16iah7h
       {
         networking.hostName = "lenny";
@@ -28,6 +26,8 @@
           gaming.enable = true;
           media.enable = true;
         };
+
+        features.development.enable = true;
 
         features.services.appimage.enable = true;
 
