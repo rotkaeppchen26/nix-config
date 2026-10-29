@@ -18,7 +18,7 @@
     config = lib.mkIf cfg.enable {
 
       environment.systemPackages = with pkgs; [
-        plex-htcp plex-desktop
+        plex-htpc plex-desktop
         haruna
       ];
 

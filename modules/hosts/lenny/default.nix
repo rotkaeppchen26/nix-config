@@ -24,10 +24,18 @@
         #   laptop.enable = true;
         # };
 
+        features.apps = {
+          gaming.enable = true;
+          media.enable = true;
+        };
+
+        features.services.appimage.enable = true;
+
         home.derrix = {
           enable = true;
           admin = true;
         };
+
       }
     ];
   };
