@@ -3,9 +3,9 @@
   flake.nixosModules.feature-service-containers = {
     lib, config, pkgs, ...
   }: let
-    cfg = config.features.services.containers.podman;
+    cfg = config.features.services.podman;
   in {
-    options.features.services.containers.podman = {
+    options.features.services.podman = {
       enable = lib.mkEnableOption "enables container support via podman";
     };
 

@@ -20,15 +20,15 @@
       programs.steam = {
         enable = true;
         gamescopeSession.enable = true;
-        extraCompatPackages = [ pkgs.proton-ge-bin ];
       };
 
       programs.gamemode.enable = true;
 
       environment.systemPackages = with pkgs; [
         gamescope
-        protonplus
-
+        # protonplus
+        # protonup-qt
+        vulkan-tools
         # Emulators
         # ppsspp
         # pcsx2
@@ -37,9 +37,9 @@
         # mesen
 
         # Installers & Launchers
-        umu-launcher
+        unstable.umu-launcher
         faugus-launcher
-        lutris
+        #lutris
         heroic
       ];
 

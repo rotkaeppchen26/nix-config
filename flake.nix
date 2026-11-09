@@ -9,6 +9,10 @@
       url = "github:0xc000022070/zen-browser-flake";
       inputs.nixpkgs.follows = "nixpkgs-unstable";
     };
+    kone-aimo-src = {
+      url = "github:phiph-s/roccat-kone-aimo-linux/e3d36feb6ad4677f82580503120c1121722b428f";
+      flake = false;
+    };
     flake-parts.url = "github:hercules-ci/flake-parts";
     import-tree.url = "github:vic/import-tree";
 

@@ -1,0 +1,376 @@
+diff --git a/README.md b/README.md
+index a04dee1..89d96e0 100644
+--- a/README.md
++++ b/README.md
+@@ -29,10 +29,10 @@ modules/hosts/<h>/_hardware.nix hardware config for that host
+ 
+ ## Hosts
+ 
+-| Host    | Desktop | Services                      | Hardware          | Apps                                | Users              |
+-|---------|---------|-------------------------------|-------------------|-------------------------------------|--------------------|
+-| desktop | kde     | printing, docker, ssh, nix-ld | bluetooth         | liferea, gaming, media (production) | alice (admin), bob |
+-| laptop  | gnome   | nix-ld                        | bluetooth, laptop | media                               | alice (admin)      |
++| Host    | Desktop | Services                      | Hardware             | Apps                                | Users              |
++|---------|---------|-------------------------------|----------------------|-------------------------------------|--------------------|
++| desktop | kde     | printing, docker, ssh, nix-ld | bluetooth, kone-aimo | liferea, gaming, media (production) | alice (admin), bob |
++| laptop  | gnome   | nix-ld                        | bluetooth, laptop    | media                               | alice (admin)      |
+ 
+ `gaming` and `media` carry sub-toggles (for example `gaming.lutris`,
+ `media.production`); see the option declarations in `modules/features/apps/`.
+@@ -92,6 +92,20 @@ so the feed list is whatever is committed in `modules/features/apps/_feeds.nix`.
+ Feeds added inside Liferea are not persisted; edit the Nix file and rebuild.
+ A host can extend or replace the list by setting the `feeds` option.
+ 
++## ROCCAT Kone Aimo
++
++`features.hardware.kone-aimo.enable` installs the
++[Kone Aimo app](https://github.com/phiph-s/roccat-kone-aimo-linux) and its udev rule.
++The rule gives the local seat user access to the mouse (USB `1e7d:2e2c`) without root.
++The source is the pinned flake input `kone-aimo-src`; the package is in
++`modules/features/hardware/_kone-aimo-package.nix`.
++
++Before the first change, save the 5 on-mouse profiles. Run `kone-aimo-backup`
++in a directory of your choice. It writes `backups/profiles-<date>.json` there.
++
++To update, change the commit in the `kone-aimo-src` URL in `flake.nix`, then run
++`nix flake update kone-aimo-src`. Review the new upstream diff first.
++
+ ## Add a desktop environment
+ 
+ 1. Create `modules/features/desktop/<name>.nix` that defines
+diff --git a/flake.lock b/flake.lock
+index 0f44c84..5fc45ea 100644
+--- a/flake.lock
++++ b/flake.lock
+@@ -54,6 +54,23 @@
+         "type": "github"
+       }
+     },
++    "kone-aimo-src": {
++      "flake": false,
++      "locked": {
++        "lastModified": 1791131895,
++        "narHash": "sha256-S6YafNxdfccGBEI8b0ITmVcUts7IG3obWwMMzKCr4OM=",
++        "owner": "phiph-s",
++        "repo": "roccat-kone-aimo-linux",
++        "rev": "e3d36feb6ad4677f82580503120c1121722b428f",
++        "type": "github"
++      },
++      "original": {
++        "owner": "phiph-s",
++        "repo": "roccat-kone-aimo-linux",
++        "rev": "e3d36feb6ad4677f82580503120c1121722b428f",
++        "type": "github"
++      }
++    },
+     "nixos-hardware": {
+       "inputs": {
+         "nixpkgs": "nixpkgs"
+@@ -136,6 +153,7 @@
+       "inputs": {
+         "flake-parts": "flake-parts",
+         "import-tree": "import-tree",
++        "kone-aimo-src": "kone-aimo-src",
+         "nixos-hardware": "nixos-hardware",
+         "nixpkgs": "nixpkgs_2",
+         "nixpkgs-unstable": "nixpkgs-unstable",
+diff --git a/flake.nix b/flake.nix
+index 93fbd4b..47a163a 100644
+--- a/flake.nix
++++ b/flake.nix
+@@ -10,6 +10,11 @@
+       # Zen tracks current Firefox; the flake requires an unstable nixpkgs.
+       inputs.nixpkgs.follows = "nixpkgs-unstable";
+     };
++    kone-aimo-src = {
++      url = "github:phiph-s/roccat-kone-aimo-linux/e3d36feb6ad4677f82580503120c1121722b428f";
++      # Upstream has no flake.nix; the package lives in modules/features/hardware.
++      flake = false;
++    };
+     flake-parts.url = "github:hercules-ci/flake-parts";
+     import-tree.url = "github:vic/import-tree";
+   };
+diff --git a/modules/features/hardware/_kone-aimo-f13-f24.patch b/modules/features/hardware/_kone-aimo-f13-f24.patch
+new file mode 100644
+index 0000000..4b828a6
+--- /dev/null
++++ b/modules/features/hardware/_kone-aimo-f13-f24.patch
+@@ -0,0 +1,85 @@
++diff --git a/src/aimo/app.py b/src/aimo/app.py
++index 9dd234e..65f61a1 100644
++--- a/src/aimo/app.py
+++++ b/src/aimo/app.py
++@@ -6,7 +6,8 @@ gi.require_version('Gtk', '4.0')
++ gi.require_version('Adw', '1')
++ from gi.repository import Adw, Gdk, Gio, GLib, Gtk
++ 
++-from .buttons import (ACTIONS, EVDEV_MODIFIERS, EVDEV_TO_HID, SHORTCUT, SLOT_NAMES, SLOTS, WHEEL_SLOTS,
+++from .buttons import (ACTIONS, EVDEV_MODIFIERS, EVDEV_TO_HID, FKEY_PRESETS, PRESET_BASE, SHORTCUT, SLOT_NAMES,
+++                      SLOTS, WHEEL_SLOTS,
++                       shortcut_label)
++ from .device import DeviceNotFound, KoneAimo, LED_ZONES
++ 
++@@ -169,11 +170,19 @@ class MainWindow(Adw.ApplicationWindow):
++     @staticmethod
++     def _actions_for(slot):
++         # Scrollrad-Slots dürfen nicht deaktiviert werden (sonst scrollt die Maus nicht mehr)
++-        return [(c, n) for c, n in ACTIONS if not (c == 0 and slot % SLOTS in WHEEL_SLOTS)]
+++        return [(c, n) for c, n in ACTIONS if not (c == 0 and slot % SLOTS in WHEEL_SLOTS)] + FKEY_PRESETS
+++
+++    def _preset_code(self, slot):
+++        # Shortcut slots without modifiers on F13-F24 are shown as their preset entry
+++        if self.buttons.action(slot) != SHORTCUT:
+++            return None
+++        mods, usage = self.buttons.shortcut(slot)
+++        code = PRESET_BASE + usage
+++        return code if mods == 0 and code in dict(FKEY_PRESETS) else None
++ 
++     def _sync_slot(self, slot):
++         row, key_btn = self.slot_rows[slot]
++-        action = self.buttons.action(slot)
+++        action = self._preset_code(slot) or self.buttons.action(slot)
++         codes = [c for c, _ in self._actions_for(slot)]
++         row.set_selected(codes.index(action) if action in codes else 0)
++         is_sc = action == SHORTCUT
++@@ -186,8 +195,12 @@ class MainWindow(Adw.ApplicationWindow):
++             return
++         row, _ = self.slot_rows[slot]
++         code = self._actions_for(slot)[row.get_selected()][0]
+++        if code >= PRESET_BASE:
+++            self.buttons.set_action(slot, SHORTCUT, (0, code - PRESET_BASE))
+++            self._sync_slot(slot)
+++            return
++         if code == SHORTCUT:
++-            if self.buttons.action(slot) != SHORTCUT:
+++            if self.buttons.action(slot) != SHORTCUT or self._preset_code(slot):
++                 self._record_shortcut(slot)
++             return
++         self.buttons.set_action(slot, code)
++diff --git a/src/aimo/buttons.py b/src/aimo/buttons.py
++index d0836c8..e57147c 100644
++--- a/src/aimo/buttons.py
+++++ b/src/aimo/buttons.py
++@@ -19,6 +19,11 @@ ACTIONS = [
++ ]
++ ACTION_NAMES = dict(ACTIONS)
++ 
+++# F13-F24 (HID 0x68-0x73) are missing on most keyboards and cannot be recorded. The UI offers them
+++# as presets that write a Keyboard Shortcut action without modifiers. Preset code = PRESET_BASE + usage.
+++PRESET_BASE = 0x1000
+++FKEY_PRESETS = [(PRESET_BASE + 0x68 + i, f'F{13 + i}') for i in range(12)]
+++
++ SLOT_NAMES = ['Left button', 'Right button', 'Wheel click', 'Wheel tilt left', 'Wheel tilt right',
++               'Wheel up', 'Wheel down', 'Side button forward', 'Side button back',
++               'Easy-Shift button', 'Top button up', 'Top button down']
++@@ -31,7 +36,8 @@ _EVDEV = {**{4 + i: c for i, c in enumerate([30, 48, 46, 32, 18, 33, 34, 35, 23,
++           40: 28, 41: 1, 42: 14, 43: 15, 44: 57, 45: 12, 46: 13, 47: 26, 48: 27, 49: 43, 51: 39, 52: 40,
++           53: 41, 54: 51, 55: 52, 56: 53, 57: 58, 70: 99, 71: 70, 72: 119, 73: 110, 74: 102, 75: 104,
++           76: 111, 77: 107, 78: 109, 79: 106, 80: 105, 81: 108, 82: 103, 100: 86,
++-          **{58 + i: c for i, c in enumerate([59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 87, 88])}}
+++          **{58 + i: c for i, c in enumerate([59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 87, 88])},
+++          **{0x68 + i: 183 + i for i in range(12)}}
++ EVDEV_TO_HID = {v: k for k, v in _EVDEV.items()}
++ 
++ # evdev-Keycode der Modifier -> HID-Modifierbit
++@@ -54,6 +60,8 @@ def key_label(usage):
++         return '0'
++     if 58 <= usage <= 69:
++         return f'F{usage - 57}'
+++    if 0x68 <= usage <= 0x73:
+++        return f'F{usage - 0x68 + 13}'
++     return _LABELS.get(usage, f'Key 0x{usage:02x}')
++ 
++ 
+diff --git a/modules/features/hardware/_kone-aimo-fixes.patch b/modules/features/hardware/_kone-aimo-fixes.patch
+new file mode 100644
+index 0000000..ce72102
+--- /dev/null
++++ b/modules/features/hardware/_kone-aimo-fixes.patch
+@@ -0,0 +1,71 @@
++diff --git a/src/aimo/app.py b/src/aimo/app.py
++index 65f61a1..ad85e4f 100644
++--- a/src/aimo/app.py
+++++ b/src/aimo/app.py
++@@ -1,5 +1,6 @@
++ """GTK4/libadwaita-Oberfläche für die ROCCAT Kone Aimo."""
++ import sys
+++import traceback
++ 
++ import gi
++ gi.require_version('Gtk', '4.0')
++@@ -73,7 +74,8 @@ class MainWindow(Adw.ApplicationWindow):
++         refresh.connect('clicked', lambda *_: self.reload(self.settings.profile if self.settings else None, toast=True))
++         header.pack_start(refresh)
++ 
++-        self.profile_drop = Gtk.DropDown(model=Gtk.StringList.new([]))
+++        self.profile_model = Gtk.StringList.new([])
+++        self.profile_drop = Gtk.DropDown(model=self.profile_model)
++         self.profile_drop.connect('notify::selected', self._on_profile_changed)
++         header.set_title_widget(self.profile_drop)
++ 
++@@ -255,7 +257,7 @@ class MainWindow(Adw.ApplicationWindow):
++     def _refresh_profile_labels(self):
++         labels = [f'Profile {i + 1}' + ('  ·  on mouse' if i == self.active else '') for i in range(5)]
++         sel = self.profile_drop.get_selected()
++-        self.profile_drop.set_model(Gtk.StringList.new(labels))
+++        self.profile_model.splice(0, self.profile_model.get_n_items(), labels)
++         self.profile_drop.set_selected(self.settings.profile if self.settings else sel)
++ 
++     def reload(self, profile=None, toast=False):
++@@ -294,7 +296,8 @@ class MainWindow(Adw.ApplicationWindow):
++     def _on_profile_changed(self, drop, _):
++         if self.loading or self.settings is None or drop.get_selected() == self.settings.profile:
++             return
++-        self.reload(drop.get_selected())
+++        # Reload from idle: the dropdown must not change its model inside its own notify handler
+++        GLib.idle_add(lambda p=drop.get_selected(): self.reload(p) or GLib.SOURCE_REMOVE)
++ 
++     def make_active(self):
++         try:
++@@ -307,6 +310,7 @@ class MainWindow(Adw.ApplicationWindow):
++             self.make_active_action.set_enabled(False)
++             self.toast(f'Profile {self.active + 1} is now active on the mouse')
++         except Exception as e:
+++            traceback.print_exc()
++             self.toast(f'Error: {e}')
++ 
++     def apply(self):
++@@ -341,6 +345,7 @@ class MainWindow(Adw.ApplicationWindow):
++                     self.buttons_loaded = bytes(self.buttons.raw)
++             self.toast(f'Profile {s.profile + 1} saved')
++         except Exception as e:
+++            traceback.print_exc()
++             self.toast(f'Error: {e}')
++ 
++ 
++diff --git a/src/aimo/device.py b/src/aimo/device.py
++index 677180f..81a4456 100644
++--- a/src/aimo/device.py
+++++ b/src/aimo/device.py
++@@ -136,7 +136,9 @@ class KoneAimo:
++     def wait_ready(self, timeout=1.0):
++         end = time.monotonic() + timeout
++         while time.monotonic() < end:
++-            if self.get_feature(REPORT_STATUS, 3)[1] != 3:
+++            status = self.get_feature(REPORT_STATUS, 3)
+++            # A reply shorter than 2 bytes counts as busy
+++            if len(status) > 1 and status[1] != 3:
++                 return
++             time.sleep(0.1)
++ 
+diff --git a/modules/features/hardware/_kone-aimo-package.nix b/modules/features/hardware/_kone-aimo-package.nix
+new file mode 100644
+index 0000000..1e848e6
+--- /dev/null
++++ b/modules/features/hardware/_kone-aimo-package.nix
+@@ -0,0 +1,65 @@
++{
++  lib,
++  stdenvNoCC,
++  src,
++  python3,
++  gtk4,
++  libadwaita,
++  gobject-introspection,
++  wrapGAppsHook4,
++  writeShellApplication,
++}: let
++  pkg = stdenvNoCC.mkDerivation {
++    pname = "kone-aimo";
++    version = "0-unstable-${src.lastModifiedDate or "unknown"}";
++    inherit src;
++    patches = [
++      ./_kone-aimo-f13-f24.patch
++      ./_kone-aimo-fixes.patch
++    ];
++
++    nativeBuildInputs = [
++      gobject-introspection
++      wrapGAppsHook4
++    ];
++    buildInputs = [
++      gtk4
++      libadwaita
++      (python3.withPackages (ps: [ps.pygobject3]))
++    ];
++
++    installPhase = ''
++      runHook preInstall
++      install -d $out/share/kone-aimo $out/bin
++      cp -r src/aimo tools $out/share/kone-aimo/
++      substitute bin/kone-aimo $out/bin/kone-aimo --replace-fail '@LIBDIR@' "$out/share/kone-aimo"
++      chmod 755 $out/bin/kone-aimo
++      install -Dm644 data/io.github.phiph.KoneAimo.desktop -t $out/share/applications
++      install -Dm644 data/io.github.phiph.KoneAimo.svg -t $out/share/icons/hicolor/scalable/apps
++      install -Dm644 data/io.github.phiph.KoneAimo.metainfo.xml -t $out/share/metainfo
++      install -Dm644 udev/70-roccat-kone-aimo.rules -t $out/lib/udev/rules.d
++      runHook postInstall
++    '';
++
++    meta = {
++      description = "GTK4 configuration app for the ROCCAT Kone Aimo (Remastered / 16K)";
++      homepage = "https://github.com/phiph-s/roccat-kone-aimo-linux";
++      license = lib.licenses.gpl3Plus;
++      mainProgram = "kone-aimo";
++      platforms = lib.platforms.linux;
++    };
++  };
++
++  # Upstream backup.py writes to ./backups relative to the working directory and imports from ./src.
++  backup = writeShellApplication {
++    name = "kone-aimo-backup";
++    runtimeInputs = [python3];
++    text = ''
++      mkdir -p backups
++      PYTHONPATH=${pkg}/share/kone-aimo python3 ${pkg}/share/kone-aimo/tools/backup.py
++    '';
++  };
++in
++  pkg.overrideAttrs (old: {
++    passthru = (old.passthru or {}) // {inherit backup;};
++  })
+diff --git a/modules/features/hardware/kone-aimo.nix b/modules/features/hardware/kone-aimo.nix
+new file mode 100644
+index 0000000..e1698a6
+--- /dev/null
++++ b/modules/features/hardware/kone-aimo.nix
+@@ -0,0 +1,23 @@
++{inputs, ...}: {
++  flake.nixosModules.feature-kone-aimo = {
++    lib,
++    config,
++    pkgs,
++    ...
++  }: let
++    cfg = config.features.hardware.kone-aimo;
++    kone-aimo = pkgs.callPackage ./_kone-aimo-package.nix {src = inputs.kone-aimo-src;};
++  in {
++    options.features.hardware.kone-aimo.enable =
++      lib.mkEnableOption "the ROCCAT Kone Aimo (Remastered / 16K, USB 1e7d:2e2c) configuration app";
++
++    config = lib.mkIf cfg.enable {
++      environment.systemPackages = [
++        kone-aimo
++        kone-aimo.backup
++      ];
++      # The rule tags the mouse hidraw node with uaccess, so the local seat user needs no root.
++      services.udev.packages = [kone-aimo];
++    };
++  };
++}
+diff --git a/modules/hosts/desktop/default.nix b/modules/hosts/desktop/default.nix
+index e02663e..c3dd46b 100644
+--- a/modules/hosts/desktop/default.nix
++++ b/modules/hosts/desktop/default.nix
+@@ -20,7 +20,10 @@
+           ssh.enable = true;
+           nix-ld.enable = true;
+         };
+-        features.hardware.bluetooth.enable = true;
++        features.hardware = {
++          bluetooth.enable = true;
++          kone-aimo.enable = true;
++        };
+         features.apps = {
+           liferea.enable = true;
+           gaming.enable = true;

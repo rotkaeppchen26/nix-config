@@ -1,0 +1,85 @@
+diff --git a/src/aimo/app.py b/src/aimo/app.py
+index 9dd234e..65f61a1 100644
+--- a/src/aimo/app.py
++++ b/src/aimo/app.py
+@@ -6,7 +6,8 @@ gi.require_version('Gtk', '4.0')
+ gi.require_version('Adw', '1')
+ from gi.repository import Adw, Gdk, Gio, GLib, Gtk
+ 
+-from .buttons import (ACTIONS, EVDEV_MODIFIERS, EVDEV_TO_HID, SHORTCUT, SLOT_NAMES, SLOTS, WHEEL_SLOTS,
++from .buttons import (ACTIONS, EVDEV_MODIFIERS, EVDEV_TO_HID, FKEY_PRESETS, PRESET_BASE, SHORTCUT, SLOT_NAMES,
++                      SLOTS, WHEEL_SLOTS,
+                       shortcut_label)
+ from .device import DeviceNotFound, KoneAimo, LED_ZONES
+ 
+@@ -169,11 +170,19 @@ class MainWindow(Adw.ApplicationWindow):
+     @staticmethod
+     def _actions_for(slot):
+         # Scrollrad-Slots dürfen nicht deaktiviert werden (sonst scrollt die Maus nicht mehr)
+-        return [(c, n) for c, n in ACTIONS if not (c == 0 and slot % SLOTS in WHEEL_SLOTS)]
++        return [(c, n) for c, n in ACTIONS if not (c == 0 and slot % SLOTS in WHEEL_SLOTS)] + FKEY_PRESETS
++
++    def _preset_code(self, slot):
++        # Shortcut slots without modifiers on F13-F24 are shown as their preset entry
++        if self.buttons.action(slot) != SHORTCUT:
++            return None
++        mods, usage = self.buttons.shortcut(slot)
++        code = PRESET_BASE + usage
++        return code if mods == 0 and code in dict(FKEY_PRESETS) else None
+ 
+     def _sync_slot(self, slot):
+         row, key_btn = self.slot_rows[slot]
+-        action = self.buttons.action(slot)
++        action = self._preset_code(slot) or self.buttons.action(slot)
+         codes = [c for c, _ in self._actions_for(slot)]
+         row.set_selected(codes.index(action) if action in codes else 0)
+         is_sc = action == SHORTCUT
+@@ -186,8 +195,12 @@ class MainWindow(Adw.ApplicationWindow):
+             return
+         row, _ = self.slot_rows[slot]
+         code = self._actions_for(slot)[row.get_selected()][0]
++        if code >= PRESET_BASE:
++            self.buttons.set_action(slot, SHORTCUT, (0, code - PRESET_BASE))
++            self._sync_slot(slot)
++            return
+         if code == SHORTCUT:
+-            if self.buttons.action(slot) != SHORTCUT:
++            if self.buttons.action(slot) != SHORTCUT or self._preset_code(slot):
+                 self._record_shortcut(slot)
+             return
+         self.buttons.set_action(slot, code)
+diff --git a/src/aimo/buttons.py b/src/aimo/buttons.py
+index d0836c8..e57147c 100644
+--- a/src/aimo/buttons.py
++++ b/src/aimo/buttons.py
+@@ -19,6 +19,11 @@ ACTIONS = [
+ ]
+ ACTION_NAMES = dict(ACTIONS)
+ 
++# F13-F24 (HID 0x68-0x73) are missing on most keyboards and cannot be recorded. The UI offers them
++# as presets that write a Keyboard Shortcut action without modifiers. Preset code = PRESET_BASE + usage.
++PRESET_BASE = 0x1000
++FKEY_PRESETS = [(PRESET_BASE + 0x68 + i, f'F{13 + i}') for i in range(12)]
++
+ SLOT_NAMES = ['Left button', 'Right button', 'Wheel click', 'Wheel tilt left', 'Wheel tilt right',
+               'Wheel up', 'Wheel down', 'Side button forward', 'Side button back',
+               'Easy-Shift button', 'Top button up', 'Top button down']
+@@ -31,7 +36,8 @@ _EVDEV = {**{4 + i: c for i, c in enumerate([30, 48, 46, 32, 18, 33, 34, 35, 23,
+           40: 28, 41: 1, 42: 14, 43: 15, 44: 57, 45: 12, 46: 13, 47: 26, 48: 27, 49: 43, 51: 39, 52: 40,
+           53: 41, 54: 51, 55: 52, 56: 53, 57: 58, 70: 99, 71: 70, 72: 119, 73: 110, 74: 102, 75: 104,
+           76: 111, 77: 107, 78: 109, 79: 106, 80: 105, 81: 108, 82: 103, 100: 86,
+-          **{58 + i: c for i, c in enumerate([59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 87, 88])}}
++          **{58 + i: c for i, c in enumerate([59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 87, 88])},
++          **{0x68 + i: 183 + i for i in range(12)}}
+ EVDEV_TO_HID = {v: k for k, v in _EVDEV.items()}
+ 
+ # evdev-Keycode der Modifier -> HID-Modifierbit
+@@ -54,6 +60,8 @@ def key_label(usage):
+         return '0'
+     if 58 <= usage <= 69:
+         return f'F{usage - 57}'
++    if 0x68 <= usage <= 0x73:
++        return f'F{usage - 0x68 + 13}'
+     return _LABELS.get(usage, f'Key 0x{usage:02x}')
+ 
+ 

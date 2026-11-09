@@ -13,7 +13,7 @@
 
       environment.systemPackages = with pkgs; [
         # editors
-        vim
+        vim helix
         vscode
         msedit
         unstable.zed-editor-fhs

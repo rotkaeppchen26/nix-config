@@ -1,7 +1,6 @@
 {
   self,
   inputs,
-  pkgs,
   ...
 }: {
 
@@ -15,12 +14,14 @@
         networking.hostName = "lenny";
         system.stateVersion = "25.05";
 
+        home.derrix = {
+          enable = true;
+          admin = true;
+        };
+
         features.desktop = "kde";
-        #features.services.nix-ld.enable = true;
-        # features.hardware = {
-        #   bluetooth.enable = true;
-        #   laptop.enable = true;
-        # };
+
+        features.hardware.kone-aimo.enable = true;
 
         features.apps = {
           gaming.enable = true;
@@ -29,11 +30,10 @@
 
         features.development.enable = true;
 
-        features.services.appimage.enable = true;
-
-        home.derrix = {
-          enable = true;
-          admin = true;
+        features.services = {
+          podman.enable = true;
+          appimage.enable = true;
+          flatpak.enable = true;
         };
 
       }
